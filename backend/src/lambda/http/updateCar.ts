@@ -1,32 +1,30 @@
 import 'source-map-support/register'
-
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
-import { cors } from 'middy/middlewares'
+import { cors, httpErrorHandler } from 'middy/middlewares'
+import { updateCar } from '../../businessLogic/cars'
+import { UpdateCarRequest } from '../../requests/UpdateCarRequest'
 import { createLogger } from '../../utils/logger'
-import { getTodosByUserId as getTodosByUserId } from '../../businessLogic/todos'
-import { getUserId } from '../utils';
-const logger = createLogger('get-todo')
+import { getToken } from '../../auth/utils'
+const logger = createLogger('update-car')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('get todos')
     try {
-      const userId = getUserId(event)
-      // const jwtToken = getToken(event.headers.Authorization)
-      const todos = await getTodosByUserId(userId)
+      const carId = event.pathParameters.carId
+      const updatedCar: UpdateCarRequest = JSON.parse(event.body)
+      const jwtToken = getToken(event.headers.Authorization)
+      await updateCar(updatedCar, jwtToken, carId)
       return {
         statusCode: 200,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Credentials': true
         },
-        body: JSON.stringify({
-          items: todos
-        })
+        body: JSON.stringify(true)
       }
     } catch (e) {
-      logger.error('Error: ' + e.message)
+      logger.error(e.message)
       return {
         statusCode: 500,
         body: e.message
@@ -34,7 +32,8 @@ export const handler = middy(
     }
   }
 )
-handler.use(
+
+handler.use(httpErrorHandler()).use(
   cors({
     credentials: true
   })

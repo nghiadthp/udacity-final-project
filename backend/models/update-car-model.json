@@ -6,11 +6,11 @@
     "name": {
       "$ref": "#/definitions/nonEmptyString"
     },
-    "dueDate": {
+    "carMaker": {
       "type": "string"
     },
-    "done": {
-      "type": "boolean"
+    "model": {
+      "type": "string"
     }
   },
   "definitions": {
@@ -21,8 +21,8 @@
   },
   "required": [
     "name",
-    "dueDate",
-    "done"
+    "carMaker",
+    "model"
   ],
   "additionalProperties": false
 }

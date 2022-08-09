@@ -2,18 +2,18 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import 'source-map-support/register'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
-import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
+import { CreateCarRequest } from '../../requests/CreateCarRequest'
 import { getToken } from '../../auth/utils'
 import { createLogger } from "../../utils/logger";
-import { createTodo } from '../../businessLogic/todos'
-const logger = createLogger("create-todo");
+import { createCar } from '../../businessLogic/cars'
+const logger = createLogger("create-car");
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('Start - Create todo function')
+    logger.info('Start - Create car function')
     try {
-      const newTodo: CreateTodoRequest = JSON.parse(event.body)
+      const newCar: CreateCarRequest = JSON.parse(event.body)
       const jwtToken = getToken(event.headers.Authorization)
-      const newCreatedTodo = await createTodo(newTodo, jwtToken)
+      const newCreatedCar = await createCar(newCar, jwtToken)
       return {
         statusCode: 200,
         headers: {
@@ -21,7 +21,7 @@ export const handler = middy(
           'Access-Control-Allow-Credentials': true
         },
         body: JSON.stringify({
-          item: newCreatedTodo
+          item: newCreatedCar
         })
       }
     } catch (e) {

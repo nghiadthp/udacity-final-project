@@ -6,16 +6,17 @@
     "name": {
       "$ref": "#/definitions/nonEmptyString"
     },
-    "dueDate": {
+    "carMaker": {
       "type": "string"
     },
-    "description": {
+    "model": {
       "type": "string"
     }
   },
   "required": [
     "name",
-    "dueDate"
+    "carMaker",
+    "model"
   ],
   "definitions": {
     "nonEmptyString": {

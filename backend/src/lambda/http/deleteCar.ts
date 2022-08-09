@@ -3,17 +3,17 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 import { getToken } from '../../auth/utils'
-import { deleteTodo } from '../../businessLogic/todos'
+import { deleteCar } from '../../businessLogic/cars'
 import { createLogger } from '../../utils/logger'
-const logger = createLogger('delete-todo')
+const logger = createLogger('delete-car')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    logger.info('delete todo by todoid')
+    logger.info('delete car by carId')
     try {
-      const todoId = event.pathParameters.todoId
+      const carId = event.pathParameters.carId
       const jwtToken = getToken(event.headers.Authorization)
-      await deleteTodo(todoId, jwtToken)
+      await deleteCar(carId, jwtToken)
       return {
         statusCode: 200,
         body: JSON.stringify(true)

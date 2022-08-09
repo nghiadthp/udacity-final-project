@@ -29,9 +29,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-final-${self:provider.stage}
-    TODOS_USER_INDEX: TodoUserIndex
-    ATTACHMENT_S3_BUCKET: nghiadt2-udacity-final-0972258466-${self:provider.stage}
+    CAR_TABLE: cars-${self:provider.stage}
+    CAR_USER_INDEX: CarsUserIndex
+    ATTACHMENT_S3_BUCKET: cars-0972258466-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     JWTS_URL: https://dev-lvfte2-v.us.auth0.com/.well-known/jwks.json
 
@@ -50,14 +50,14 @@ custom:
       info:
         version: v1.0.0
         title: Udagram API
-        description: Serverless application for CRUD Todos
+        description: Serverless application for CRUD Car collection
     models:
-      - name: CreateTodoRequest
+      - name: CreateCarRequest
         contentType: application/json
-        schema: ${file(models/create-todo-model.json)}
-      - name: UpdateTodoRequest
+        schema: ${file(models/create-car-model.json)}
+      - name: UpdateCarRequest
         contentType: application/json
-        schema: ${file(models/update-todo-model.json)}
+        schema: ${file(models/update-car-model.json)}
 
 functions:
   Auth:
@@ -65,12 +65,12 @@ functions:
 
   # TODO: Configure this function - 
   # Provide iamRoleStatements property for performing Actions on DynamoDB
-  GetTodos:
-    handler: src/lambda/http/getTodos.handler
+  GetCars:
+    handler: src/lambda/http/getCars.handler
     events:
       - http:
           method: get
-          path: todos
+          path: cars
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -78,11 +78,11 @@ functions:
         Action:
           - dynamodb:Query
           - dynamodb:Scan
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_USER_INDEX}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}/index/${self:provider.environment.CAR_USER_INDEX}
       - Effect: Allow
         Action: 
            - dynamodb:Query
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -93,25 +93,25 @@ functions:
   # Provide iamRoleStatements property. Decide the Actions and AWS Resource. 
   # To refer to an AWS resource defined in the "Resources" section, you can use "Resource: !GetAtt <resource-name>.Arn"
   # To validate incoming HTTP requests, we have provided the request schemas in function definition below. 
-  CreateTodo:
-    handler: src/lambda/http/createTodo.handler
+  CreateCar:
+    handler: src/lambda/http/createCar.handler
     events:
       - http:
           method: post
-          path: todos
+          path: cars
           cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
-            summary: Create a new Todo
-            description: Create a new Todo
+            summary: Create a new Car
+            description: Create a new Car
             requestModels:
-              "application/json": CreateTodoRequest
+              "application/json": CreateCarRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:PutItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -121,25 +121,25 @@ functions:
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements, and request schemas
-  UpdateTodo:
-    handler: src/lambda/http/updateTodo.handler
+  UpdateCar:
+    handler: src/lambda/http/updateCar.handler
     events:
       - http:
           method: patch
-          path: todos/{todoId}
+          path: cars/{carId}
           cors: true
           authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
-            summary: Update a Todo
-            description: Update a Todo
+            summary: Update a Car
+            description: Update a Car
             requestModels:
-              "application/json": UpdateTodoRequest
+              "application/json": UpdateCarRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -149,19 +149,19 @@ functions:
 
   # TODO: Configure this function
   # Provide property for setting up CORS, Authorizer, iamRoleStatements
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
+  DeleteCar:
+    handler: src/lambda/http/deleteCar.handler
     events:
       - http:
           method: delete
-          path: todos/{todoId}
+          path: cars/{carId}
           cors: true
           authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:DeleteItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -180,7 +180,7 @@ functions:
     events:
       - http:
           method: post
-          path: todos/{todoId}/attachment
+          path: cars/{carId}/attachment
           cors: true
           authorizer: Auth
     iamRoleStatements:
@@ -192,7 +192,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:UpdateItem
-        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.CAR_TABLE}
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
@@ -226,27 +226,27 @@ resources:
         ValidateRequestParameters: false
     
     # TODO: Create a DynamoDB table with local secondary index and a composite key
-    TodosTable:
+    CarsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: todoId
+          - AttributeName: carId
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: todoId
+          - AttributeName: carId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.TODOS_TABLE}
+        TableName: ${self:provider.environment.CAR_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_USER_INDEX}
+          - IndexName: ${self:provider.environment.CAR_USER_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: todoId
+              - AttributeName: carId
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL

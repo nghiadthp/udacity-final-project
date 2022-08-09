@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as middy from 'middy'
 import { cors, httpErrorHandler } from 'middy/middlewares'
 import { createLogger } from '../../utils/logger'
-import { getSignedUploadUrl } from '../../businessLogic/todos'
+import { getSignedUploadUrl } from '../../businessLogic/cars'
 import { getToken, parseUserId } from '../../auth/utils'
 const logger = createLogger('get-s3-url')
 
@@ -12,11 +12,11 @@ export const handler = middy(
     logger.info('get signed upload s3 url')
     try {
       const jwtToken = getToken(event.headers.Authorization)
-      const todoId = event.pathParameters.todoId
+      const carId = event.pathParameters.carId
       const userId = parseUserId(jwtToken)
       logger.info('userId: ',userId)
 
-      const url: string = await getSignedUploadUrl(todoId, userId)
+      const url: string = await getSignedUploadUrl(carId, userId)
       return {
         statusCode: 200,
         body: JSON.stringify({
