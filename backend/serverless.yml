@@ -1,7 +1,7 @@
 # TODO: Change the name of the org 
 org: nghiadthp
-app: nghiadt2-project4
-service: nghiadt2-project4-services
+app: udacity-final
+service: udacity-final-services
 
 plugins:
   - serverless-webpack
@@ -31,7 +31,7 @@ provider:
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
     TODOS_USER_INDEX: TodoUserIndex
-    ATTACHMENT_S3_BUCKET: nghiadt2-fsoft-project4-0972258466-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: nghiadt2-udacity-final-0972258466-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     JWTS_URL: https://dev-lvfte2-v.us.auth0.com/.well-known/jwks.json
 
