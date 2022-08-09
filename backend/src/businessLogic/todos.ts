@@ -27,7 +27,8 @@ export const createTodo = async (createTodoRequest: CreateTodoRequest, jwtToken:
         name: createTodoRequest.name,
         dueDate: createTodoRequest.dueDate,
         done: false,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        description: createTodoRequest.description
     }
     return await todosAccess.createTodo(newItem)
 }

@@ -29,7 +29,7 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
+    TODOS_TABLE: Todos-final-${self:provider.stage}
     TODOS_USER_INDEX: TodoUserIndex
     ATTACHMENT_S3_BUCKET: nghiadt2-udacity-final-0972258466-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300

@@ -11,7 +11,10 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  TextArea,
+  Label,
+  Form
 } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
@@ -26,34 +29,40 @@ interface TodosProps {
 interface TodosState {
   todos: Todo[]
   newTodoName: string
-  loadingTodos: boolean
+  loadingTodos: boolean,
+  description: string
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    description: ''
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ newTodoName: event.target.value })
   }
-
+  handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ description: event.target.value })
+  }
   onEditButtonClick = (todoId: string) => {
     this.props.history.push(`/todos/${todoId}/edit`)
   }
 
-  onTodoCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onTodoCreate = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, data: any) => {
     try {
       const dueDate = this.calculateDueDate()
       const newTodo = await createTodo(this.props.auth.getIdToken(), {
         name: this.state.newTodoName,
-        dueDate
+        dueDate,
+        description: this.state.description
       })
       this.setState({
         todos: [...this.state.todos, newTodo],
-        newTodoName: ''
+        newTodoName: '',
+        description: ''
       })
     } catch {
       alert('Todo creation failed')
@@ -117,22 +126,22 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
     return (
       <Grid.Row>
         <Grid.Column width={16}>
+          <Label>TODO Name</Label>
           <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'New task',
-              onClick: this.onTodoCreate
-            }}
             fluid
-            actionPosition="left"
             placeholder="To change the world..."
             onChange={this.handleNameChange}
+            value={this.state.newTodoName}
           />
+          <Divider />
         </Grid.Column>
         <Grid.Column width={16}>
+        <Label>Description</Label>
+          <Form>
+          <TextArea placeholder='Description of Todo task...' fluid value={this.state.description} onChange={this.handleDescriptionChange}/>
+          </Form>
           <Divider />
+          <Button icon='add' color='teal' onClick={this.onTodoCreate}>Add new TODO</Button>
         </Grid.Column>
       </Grid.Row>
     )
@@ -169,7 +178,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                 />
               </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
-                {todo.name}
+                <Label>Name: {todo.name} | Description: {todo.description}</Label>
               </Grid.Column>
               <Grid.Column width={3} floated="right">
                 {todo.dueDate}
