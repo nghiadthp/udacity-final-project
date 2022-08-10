@@ -11,12 +11,19 @@
     },
     "model": {
       "type": "string"
+    },
+    "sellerEmail": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
     }
   },
   "required": [
     "name",
     "carMaker",
-    "model"
+    "model",
+    "sellerEmail"
   ],
   "definitions": {
     "nonEmptyString": {

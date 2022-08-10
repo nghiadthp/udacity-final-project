@@ -4,5 +4,7 @@ export interface CarItem {
   name: string
   carMaker: string
   model: string
+  sellerEmail: string
+  description: string
   attachmentUrl?: string
 }

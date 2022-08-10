@@ -52,7 +52,7 @@ export class CarsAccess {
 
     async updateCar(carItem: CarItem): Promise<void> {
         logger.info('update car', carItem.carId)
-        const updateExpression = 'set #name = :name, #carMaker = :carMaker, #model = :model'
+        const updateExpression = 'set #name = :name, #carMaker = :carMaker, #model = :model, #sellerEmail = :sellerEmail'
         const conditionExpression = 'carId = :carId'
         await this.docClient.update({
             TableName: this.CarsTable,
@@ -65,12 +65,14 @@ export class CarsAccess {
             ExpressionAttributeNames: {
                 '#name': 'name',
                 '#carMaker': 'carMaker',
-                '#model': 'model'
+                '#model': 'model',
+                '#sellerEmail': 'sellerEmail'
             },
             ExpressionAttributeValues: {
                 ':name': carItem.name,
                 ':carMaker': carItem.carMaker,
                 ':model': carItem.model,
+                ':sellerEmail': carItem.sellerEmail,
                 ':carId': carItem.carId
             }
         }).promise()

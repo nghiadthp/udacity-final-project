@@ -26,7 +26,9 @@ export const createCar = async (createCarRequest: CreateCarRequest, jwtToken: st
         carId,
         name: createCarRequest.name,
         carMaker: createCarRequest.carMaker,
-        model: createCarRequest.model
+        model: createCarRequest.model,
+        sellerEmail: createCarRequest.sellerEmail,
+        description: createCarRequest.description
     }
     return await carsAccess.createCar(newItem)
 }
@@ -38,7 +40,9 @@ export const updateCar = async (updateCarRequest: UpdateCarRequest, jwtToken: st
         carId,
         name: updateCarRequest.name,
         carMaker: updateCarRequest.carMaker,
-        model: updateCarRequest.model
+        model: updateCarRequest.model,
+        sellerEmail: updateCarRequest.sellerEmail,
+        description: updateCarRequest.description,
     }
     await carsAccess.updateCar(updatedItem)
 }

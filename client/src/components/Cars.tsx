@@ -14,7 +14,10 @@ import {
   Loader,
   TextArea,
   Label,
-  Form
+  Form,
+  Dropdown,
+  DropdownProps,
+  Item
 } from 'semantic-ui-react'
 
 import { createCar, deleteCar, getCars, patchCar } from '../api/cars-api'
@@ -29,10 +32,48 @@ interface CarsProps {
 interface CarsState {
   cars: Car[]
   newCarName: string
-  newCarMaker: string
-  newCarModel: string
+  newCarMaker?: string
+  newCarModel?: string
+  newCarSellerEmail: string
+  newDescription: string
   loadingCars: boolean
+
+  requireCarName: string
+  requireCarMaker: string
+  requireCarModel: string
+  requireCarSellerEmail: string
+  invalidCarSellerEmail: string
 }
+
+const requireCarNameMessage = 'Please enter a car name!'
+const requireCarMakerMessage = 'Please select a car maker!'
+const requireCarModelMessage = 'Please select a car model!'
+const requireSellerEmailMessage = 'Please enter seller email'
+const invalidSellerEmailMessage = 'Please enter valid email'
+
+const validEmail = new RegExp(/\S+@\S+\.\S+/);
+
+const carMakerOptions = [
+  { key: 1, text: 'BMW', value: "BMW" },
+  { key: 2, text: 'Honda', value: 'Honda' },
+  { key: 3, text: 'Mazda', value: 'Mazda' },
+  { key: 4, text: 'Toyota', value: 'Toyota' },
+  { key: 5, text: 'Hyundai', value: 'Hyundai' },
+  { key: 6, text: 'Ford', value: 'Ford' },
+  { key: 7, text: 'Kia', value: 'Kia' },
+  { key: 8, text: 'Tesla', value: 'Tesla' },
+  { key: 9, text: 'Chevrolet', value: 'Chevrolet' },
+  { key: 10, text: 'Lexus', value: 'Lexus' },
+]
+
+const carModelOptions = [
+  { key: 1, text: 'Hatchback', value: "Hatchback" },
+  { key: 2, text: 'Sedan', value: 'Sedan' },
+  { key: 3, text: 'SUV', value: 'SUV' },
+  { key: 4, text: 'Crossover', value: 'Crossover' },
+  { key: 5, text: 'MPV', value: 'MPV' }
+]
+
 
 export class Cars extends React.PureComponent<CarsProps, CarsState> {
   state: CarsState = {
@@ -40,19 +81,42 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
     newCarName: '',
     newCarMaker: '',
     newCarModel: '',
-    loadingCars: true
+    newCarSellerEmail: '',
+    newDescription: '',
+    loadingCars: true,
+
+    requireCarName: '',
+    requireCarMaker: '',
+    requireCarModel: '',
+    requireCarSellerEmail: '',
+    invalidCarSellerEmail: ''
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newCarName: event.target.value })
+    this.setState({ newCarName: event.target.value, requireCarName: event.target.value.trim() === '' ? requireCarNameMessage : '' })
   }
 
-  handleMakerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newCarMaker: event.target.value })
+  handleMakerChange = (event: React.SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => {
+    this.setState({ newCarMaker: data.value?.toString(), requireCarMaker: data.value?.toString().trim() === '' ? requireCarMakerMessage : '' })
   }
 
-  handleModelChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newCarModel: event.target.value })
+  handleModelChange = (event: React.SyntheticEvent<HTMLElement, Event>, data: DropdownProps) => {
+    this.setState({ newCarModel: data.value?.toString(), requireCarModel: data.value?.toString().trim() === '' ? requireCarModelMessage : '' })
+  }
+
+  handleSellerEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newCarSellerEmail: event.target.value, requireCarSellerEmail: event.target.value.trim() === '' ? requireSellerEmailMessage : '' })
+    debugger;
+    if (!validEmail.test(event.target.value)) {
+      this.setState({ invalidCarSellerEmail: invalidSellerEmailMessage });
+    }
+    else {
+      this.setState({ invalidCarSellerEmail: '' });
+    }
+  }
+
+  handleDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ newDescription: event.target.value })
   }
 
   onEditButtonClick = (carId: string) => {
@@ -61,16 +125,58 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
 
   onCarCreate = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, data: any) => {
     try {
+      this.setState({ requireCarName: '', requireCarModel: '', requireCarMaker: '', newCarSellerEmail: '' })
+      let error: boolean = false;
+      if (this.state.newCarName.trim() == '') {
+        this.setState({ requireCarName: requireCarNameMessage })
+        error = true;
+      }
+
+      if (this.state.newCarModel == '') {
+        this.setState({ requireCarModel: requireCarModelMessage })
+        error = true;
+      }
+
+      if (this.state.newCarMaker == '') {
+        this.setState({ requireCarMaker: requireCarMakerMessage })
+        error = true;
+      }
+
+      if (this.state.newCarSellerEmail == '') {
+        this.setState({ requireCarSellerEmail: requireSellerEmailMessage })
+        error = true;
+      }
+
+      if (!validEmail.test(this.state.newCarSellerEmail)) {
+        this.setState({ invalidCarSellerEmail: invalidSellerEmailMessage });
+        error = true;
+      }
+
+      if (error) {
+        return;
+      }
+
       const newCar = await createCar(this.props.auth.getIdToken(), {
         name: this.state.newCarName,
-        carMaker: this.state.newCarMaker,
-        model: this.state.newCarModel
+        carMaker: this.state.newCarMaker ?? "",
+        model: this.state.newCarModel ?? "",
+        sellerEmail: this.state.newCarSellerEmail,
+        description: this.state.newDescription,
       })
+
       this.setState({
         cars: [...this.state.cars, newCar],
         newCarName: '',
         newCarMaker: '',
-        newCarModel: ''
+        newCarModel: '',
+        newCarSellerEmail: '',
+        newDescription: '',
+
+        requireCarName: '',
+        requireCarMaker: '',
+        requireCarModel: '',
+        requireCarSellerEmail: '',
+        invalidCarSellerEmail: ''
       })
     } catch {
       alert('Car creation failed')
@@ -103,7 +209,7 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
   render() {
     return (
       <div>
-        <Header as="h1">CARs</Header>
+        <Header as="h1">Cars Management</Header>
 
         {this.renderCreateCarInput()}
 
@@ -116,37 +222,85 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
     return (
       <Grid.Row>
         <Grid.Column width={16}>
-          <Label>Car Name</Label>
+          <label><b>Car Name</b></label>
           <Input
             fluid
             placeholder="Car's Name"
             onChange={this.handleNameChange}
             value={this.state.newCarName}
           />
+          <Label basic color='red' pointing className={this.state.requireCarName === '' ? 'displaynone' : ""}>
+            {this.state.requireCarName}
+          </Label>
+          <Divider />
+        </Grid.Column>
+        <Grid.Column>
+          <label><b>Car Maker</b></label>
+          <Form.Field>
+            <Dropdown
+              selectOnNavigation={false}
+              className="ui primary"
+              onChange={this.handleMakerChange}
+              clearable
+              options={carMakerOptions}
+              selection
+              placeholder='Select car maker'
+              fluid
+            />
+            <Label basic color='red' pointing className={this.state.requireCarMaker === '' ? 'displaynone' : ""}>
+              {this.state.requireCarMaker}
+            </Label>
+          </Form.Field>
+          <Divider />
+        </Grid.Column>
+        <Grid.Column>
+          <label><b>Car Model</b></label>
+          <Form.Field>
+            <Dropdown
+              selectOnNavigation={false}
+              className="ui primary"
+              onChange={this.handleModelChange}
+              clearable
+              options={carModelOptions}
+              selection
+              placeholder='Select car model'
+              fluid
+            />
+            <Label basic color='red' pointing className={this.state.requireCarModel === '' ? 'displaynone' : ""}>
+              {this.state.requireCarModel}
+            </Label>
+          </Form.Field>
           <Divider />
         </Grid.Column>
         <Grid.Column width={16}>
-          <Label>Car Maker</Label>
+          <label><b>Seller Email</b></label>
           <Input
             fluid
-            placeholder="Car's maker"
-            onChange={this.handleMakerChange}
-            value={this.state.newCarMaker}
+            placeholder="Seller Email"
+            onChange={this.handleSellerEmailChange}
+            value={this.state.newCarSellerEmail}
           />
+          <Label basic color='red' pointing className={this.state.requireCarSellerEmail === '' ? 'displaynone' : ""}>
+            {this.state.requireCarSellerEmail}
+          </Label>
+          <Label basic color='red' pointing className={this.state.invalidCarSellerEmail === '' ? 'displaynone' : ""}>
+            {this.state.invalidCarSellerEmail}
+          </Label>
           <Divider />
         </Grid.Column>
+
         <Grid.Column width={16}>
-          <Label>Car Model</Label>
-          <Input
-            fluid
-            placeholder="Car's model"
-            onChange={this.handleModelChange}
-            value={this.state.newCarModel}
-          />
+          <label><b>Description</b></label>
+          <Form>
+            <TextArea placeholder="Car's description"
+              onChange={this.handleDescriptionChange}
+              value={this.state.newDescription} />
+          </Form>
           <Divider />
         </Grid.Column>
+
         <Grid.Column width={16}>
-          <Button icon='add' color='teal' onClick={this.onCarCreate}>Add new car</Button>
+          <Button icon='add' color='teal' content='Add new car' onClick={this.onCarCreate} />
         </Grid.Column>
       </Grid.Row>
     )
@@ -172,44 +326,39 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
 
   renderCarsList() {
     return (
-      <Grid padded>
+      <Item.Group padded>
         {this.state.cars.map((car, pos) => {
           return (
-            <Grid.Row key={car.carId}>
-              <Grid.Column width={10} verticalAlign="middle">
-                <Label>Name: {car.name} | Maker: {car.carMaker} | Model: {car.model}</Label>
-              </Grid.Column>
-              <Grid.Column width={3} floated="right">
-                {car.carMaker}
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="blue"
-                  onClick={() => this.onEditButtonClick(car.carId)}
-                >
-                  <Icon name="pencil" />
-                </Button>
-              </Grid.Column>
-              <Grid.Column width={1} floated="right">
-                <Button
-                  icon
-                  color="red"
-                  onClick={() => this.onCarDelete(car.carId)}
-                >
-                  <Icon name="delete" />
-                </Button>
-              </Grid.Column>
-              {car.attachmentUrl && (
-                <Image src={car.attachmentUrl} size="small" wrapped />
-              )}
-              <Grid.Column width={16}>
-                <Divider />
-              </Grid.Column>
-            </Grid.Row>
+            <Item>
+              {car.attachmentUrl != '' && car.attachmentUrl != undefined ? (
+                <Item.Image src={car.attachmentUrl} />
+                // <Item.Image src="https://react.semantic-ui.com/images/wireframe/image.png"/>
+              ) :
+                (
+                  <Item.Image src="https://react.semantic-ui.com/images/wireframe/image.png" />
+                )}
+              <Item.Content>
+                <Item.Header as='a'>{car.name}</Item.Header>
+                <Item.Meta>
+                  <span className='cinema'>{car.sellerEmail}</span>
+                </Item.Meta>
+                <Item.Description>{car.description}</Item.Description>
+                <Item.Extra>
+                  <Button floated='right' icon color="red" onClick={() => this.onCarDelete(car.carId)} >
+                    <Icon name="delete" />
+                  </Button>
+                  <Button floated='right' icon color="blue" onClick={() => this.onEditButtonClick(car.carId)} >
+                    <Icon name="upload" />
+                  </Button>
+
+                  <Label>{car.model}</Label>
+                  <Label>{car.carMaker}</Label>
+                </Item.Extra>
+              </Item.Content>
+            </Item>
           )
         })}
-      </Grid>
+      </Item.Group>
     )
   }
 
