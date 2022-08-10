@@ -330,13 +330,7 @@ export class Cars extends React.PureComponent<CarsProps, CarsState> {
         {this.state.cars.map((car, pos) => {
           return (
             <Item>
-              {car.attachmentUrl != '' && car.attachmentUrl != undefined ? (
-                <Item.Image src={car.attachmentUrl} />
-                // <Item.Image src="https://react.semantic-ui.com/images/wireframe/image.png"/>
-              ) :
-                (
-                  <Item.Image src="https://react.semantic-ui.com/images/wireframe/image.png" />
-                )}
+              <Item.Image src={car.attachmentUrl} />
               <Item.Content>
                 <Item.Header as='a'>{car.name}</Item.Header>
                 <Item.Meta>
